@@ -17,12 +17,13 @@ defmodule OData.HTTP do
     query: %Query{
       id: nil,
       params: params,
+      other_params: other_params,
       service_root: root,
       entity: entity
     }
   }) do
     params
-    |> build_url(url, entity, root)
+    |> build_url(other_params,url, entity, root)
     |> get_url(headers)
   end
 
@@ -38,16 +39,17 @@ defmodule OData.HTTP do
     get_url("#{url}/#{root}/#{entity}(#{id})", headers)
   end
 
-  @spec build_url(map, String.t, String.t, String.t) :: String.t
-  defp build_url(params, url, entity, root)
+  @spec build_url(map,map,String.t, String.t, String.t) :: String.t
+  defp build_url(params, other_params, url, entity, root)
   when is_map(params)
+  and is_map(other_params)
   and is_binary(url)
   and is_binary(entity)
   and is_binary(root) do
-    if Enum.empty?(params) do
+    if Enum.empty?(other_params) and Enum.empty?(params) do
       "#{url}/#{root}/#{entity}"
     else
-      "#{url}/#{root}/#{entity}?#{URI.encode_query(map_params(params))}"
+      "#{url}/#{root}/#{entity}?#{URI.encode_query(map_params(params) ++ Map.to_list( other_params ) ) }"
     end
   end
 

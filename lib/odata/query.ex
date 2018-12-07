@@ -12,7 +12,10 @@ defmodule OData.Query do
     params: %{
       top: nil,
       skip: nil
-    }
+    },
+    other_params: %{}
+  
+
 
   @type t :: %__MODULE__{}
   @default_service_root "odata"
@@ -31,7 +34,8 @@ defmodule OData.Query do
     struct(__MODULE__, %{
       service_root: service_root,
       entity: entity,
-      params: params
+      params: params,
+      other_params: %{}
     })
   end
 
@@ -63,4 +67,10 @@ defmodule OData.Query do
     Map.put(query, :params, Map.merge(params, new_params))
   end
 
+  @spec set_other_params(Query.t, Keyword.t) :: Query.t
+  def set_other_params(%Query{other_params: params} = query, new_params)
+  when is_list(new_params) do
+    new_params = new_params |> Enum.into(%{})
+    Map.put(query, :other_params, Map.merge(params, new_params))
+  end
 end
