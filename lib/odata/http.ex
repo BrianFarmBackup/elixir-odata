@@ -39,6 +39,43 @@ defmodule OData.HTTP do
     get_url("#{url}/#{root}/#{entity}(#{id})", headers)
   end
 
+
+  @doc """
+  Make an HTTP GET request.
+  """
+  @spec post(Request.t, map) ::
+    {:ok, HTTPoison.Response.t} | {:error, HTTPoison.Error.t}
+  def post(%Request{
+    url: url,
+    headers: headers,
+    query: %Query{
+      id: nil,
+      params: params,
+      other_params: other_params,
+      service_root: root,
+      entity: entity
+    }
+  },post_obj
+  ) do
+    params
+    |> build_url(other_params,url, entity, root)
+    |> post_url(headers, post_obj)
+  end
+
+  def post(%Request{
+    url: url,
+    headers: headers,
+    query: %Query{
+      id: id,
+      service_root: root,
+      entity: entity
+    }
+  },post_obj) do
+    post_url("#{url}/#{root}/#{entity}(#{id})", headers, post_obj)
+  end
+
+
+
   @spec build_url(map,map,String.t, String.t, String.t) :: String.t
   defp build_url(params, other_params, url, entity, root)
   when is_map(params)
@@ -66,6 +103,15 @@ defmodule OData.HTTP do
     opts = [timeout: :infinity, recv_timeout: :infinity,
       ssl: [versions: [:"tlsv1.2"]]]
     HTTPoison.get(url, headers, opts)
+  end
+
+  @spec post_url(String.t, map, map) ::
+    {:ok, HTTPoison.Response.t} | {:error, HTTPoison.Error.t}
+  defp post_url(url, headers, post_obj) do
+    opts = [timeout: :infinity, recv_timeout: :infinity,
+      ssl: [versions: [:"tlsv1.2"]]]
+    body = Poison.encode!( post_obj )
+    HTTPoison.post(url, body, headers, opts)
   end
 
 end

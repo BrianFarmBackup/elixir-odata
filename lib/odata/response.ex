@@ -34,7 +34,14 @@ defmodule OData.Response do
         "@odata.context" => context
       } = entity ->
         {:ok, %Response{value: entity, context: context}}
-      _ ->
+      %{
+        "error" => e  
+      } -> {:error, e}
+
+      x ->
+        IO.puts "uuuuuuuuuuuuuuuuuuuunknown"
+        x |> inspect |> IO.puts
+        IO.puts "uuuuuuuuuuuuuuuuuuuunknown"
         {:error, :unrecognised_response}
     end
   end
